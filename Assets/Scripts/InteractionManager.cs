@@ -24,11 +24,6 @@ public class InteractionManager : MonoBehaviour
     // Path mode boolean
     private bool pathMode = false;
 
-
-    // Current Node variable
-    private int CurrentNode;
-    private int PreviousNode;
-
     //All the relevant imports that we will be using 
     private GraphStructure graphStructure;
 
@@ -58,28 +53,6 @@ public class InteractionManager : MonoBehaviour
         // Create a reference to the suggestion list
         suggestionList_1 = SuggestionOBJ_1.GetComponent<TextMeshProUGUI>();
         suggestionList_2 = SuggestionOBJ_2.GetComponent<TextMeshProUGUI>();
-
-        // Create get the current closest point object 
-        // if none is selected - we select a random one from the dictionary of things
-        int index = random.Next(graphStructure.nodes.Count);
-
-        Node selectedNode = graphStructure.nodes.ElementAt(index).Value;
-        int idnumber = selectedNode.id;
-        string name = selectedNode.name;
-
-        currentNodeText = name;
-
-        // Draw out the context - method
-        PreviousNode = idnumber;
-        CurrentNode = idnumber;
-        // DrawNeighbours(CurrentNode, new Vector3(0f,0f,0f), graphStructure);
-
-
-        // Test out the search script
-        int end_index = random.Next(graphStructure.nodes.Count);
-        Node end_node = graphStructure.nodes.ElementAt(end_index).Value;
-
-        // findAndDrawPath(CurrentNode, end_node.id);
     }
 
     // Update is called once per frame
@@ -94,9 +67,7 @@ public class InteractionManager : MonoBehaviour
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit, 100.0f))
-            {
-                Debug.Log("You selected the " + hit.transform.name); // ensure you picked right object
+            if (Physics.Raycast(ray, out hit, 100.0f)){
                 RebaseCameraToTransform(hit.transform);
             }
         }
