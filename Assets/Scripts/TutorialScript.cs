@@ -14,7 +14,7 @@ public class TutorialScript : MonoBehaviour
     void Update()
     {
         // Mainatin a reference to keep track if the tutorial is visible or not
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             // if active turn it off
             if (ShowTutorial == false)
