@@ -77,7 +77,14 @@ public class InteractionManager : MonoBehaviour
     public void Search(){
         string searchstring = RebaseText.GetComponent<TMP_InputField>().text;
         if (searchstring != null || searchstring != " "){
+            graphStructure.ResetAll();
+            // Rebase the camera the main node
+            RebaseCameraToTransform(transform);
+            // Search node - resets all the things 
             SearchNode(searchstring);
+            // Lastly delete all the line connecting everything 
+            var lineRenderer = transform.GetComponent<LineRenderer>();
+            lineRenderer.positionCount = 0;
         }
         else {
             suggestionList_1.text = "YOU MUST ENTER SOMETHING";
