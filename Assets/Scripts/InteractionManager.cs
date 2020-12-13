@@ -68,7 +68,15 @@ public class InteractionManager : MonoBehaviour
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit, 100.0f)){
-                RebaseCameraToTransform(hit.transform);
+                if (pathMode)
+                {
+                    RebaseCameraToTransform(hit.transform);
+                }
+                else {
+                    int ID = hit.transform.GetComponent<Node_object>().id;
+                    graphStructure.ResetAll();
+                    DrawNeighbours(ID, new Vector3(0f, 0f, 0f), graphStructure);
+                }
             }
         }
     }
@@ -230,6 +238,8 @@ public class InteractionManager : MonoBehaviour
         // if the path mode is not on!!
         if (pathMode == false){
             DeleteAllChildren();
+            // Also reset the graph since we kinda want to draw everything from scratch
+            graphStructure.ResetHasBeenDrawn();
         }
 
         // values for this node
@@ -237,8 +247,6 @@ public class InteractionManager : MonoBehaviour
         string text = this_node.name;
         int[] edge = this_node.connected_nodes;
         // instantiate one object in the middle of the thing 
-        // This will lead to Z fighting - todo fix Z Fighting
-        // Proximal fix with not drawn
         if (this_node.hasBeenDrawn == false)
         {
             GameObject center = Instantiate(Node_Prefab, pos, Quaternion.identity, transform);
@@ -399,28 +407,35 @@ public class InteractionManager : MonoBehaviour
         // turn path mode on - this ensures that we arent deleting things as we draw them
         pathMode = true;
         // compute a path
-        List<int> Path = graphStructure.BFS(graphStructure, graphStructure.nodes[StartID], graphStructure.nodes[EndID]);
+        try
+        {
+            List<int> Path = graphStructure.BFS(graphStructure, graphStructure.nodes[StartID], graphStructure.nodes[EndID]);
 
-        // Clear out whatever is on screen
-        foreach (Transform node in transform){
-            Destroy(node.gameObject);
+            // Clear out whatever is on screen
+            DeleteAllChildren();
+
+            // reset all the has been drawn stuff
+            graphStructure.ResetHasBeenDrawn();
+
+            // set the line renderer path to be the same length as the Path that we have
+            lineRenderer.positionCount = Path.Count;
+
+            // Set all the nodes in the path to be on the path object
+            foreach (int NodeID in Path)
+            {
+                graphStructure.nodes[NodeID].fallsOnPath = true;
+            }
+
+            // Reccursively draw out that path
+            for (int i = 0; i < Path.Count; i++)
+            {
+                DrawNeighbours(Path[i], graphStructure.nodes[Path[i]].positionPoint.ToVector(), graphStructure);
+                lineRenderer.SetPosition(i, graphStructure.nodes[Path[i]].positionPoint.ToVector());
+            }
         }
-
-        // reset all the has been drawn stuff
-        graphStructure.ResetHasBeenDrawn();
-
-        // set the line renderer path to be the same length as the Path that we have
-        lineRenderer.positionCount = Path.Count;
-
-        // Set all the nodes in the path to be on the path object
-        foreach (int NodeID in Path){
-            graphStructure.nodes[NodeID].fallsOnPath = true;
-        }
-
-        // Reccursively draw out that path
-        for (int i = 0; i < Path.Count; i++){
-            DrawNeighbours(Path[i], graphStructure.nodes[Path[i]].positionPoint.ToVector(), graphStructure);
-            lineRenderer.SetPosition(i, graphStructure.nodes[Path[i]].positionPoint.ToVector());
+        catch {
+            suggestionList_1.text = "PATH TOO LONG";
+            suggestionList_2.text = "PATH TOO LONG";
         }
     }
 

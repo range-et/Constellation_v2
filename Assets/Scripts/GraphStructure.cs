@@ -47,10 +47,6 @@ namespace PGL
         {
             // Create a new list and put all the nodes that led upto it
             List<int> pathIDs = new List<int>();
-            // for some reason returing a list of Ids didnt work ... my guess is that cause the reference 
-            // to the classes were broken as we were passing them around - so we got left with empty nodes
-            // Too lazy to rewrite the class method 
-            List<Node> path = new List<Node>();
 
             // Reset all the nodes so that if there were any active nodes
             graph.ResetHasBeenExplored();
@@ -83,21 +79,16 @@ namespace PGL
                 }
             }
 
+            // Lastly bactrace all the paths that we found
             // back trace the path
-            path.Add(end_n);
+            pathIDs.Add(end_n.id);
 
-            // Node previous = path[path.Count - 1];
-
-            // && path[path.Count - 1] != null
-            // (previous.id != start_n.id) && 
-            // the argument is that the first node cannot be explored from anything - hence is the start node
-            while (path[path.Count - 1].exploredFrom != null)
+            // so long as the first node isnt queued keep going
+            while (pathIDs[pathIDs.Count - 1] != start_n.id)
             {
                 // Get the last item and append that guy's parent to the path node
-                Node node = path[path.Count - 1];
-                path.Add(node.exploredFrom);
-                pathIDs.Add(node.id);
-                // previous = node;
+                Node node = graph.nodes[pathIDs[pathIDs.Count - 1]];
+                pathIDs.Add(node.exploredFrom.id);
             }
 
             // Add the start node back in the list
@@ -106,6 +97,7 @@ namespace PGL
             // reverse the path list
             pathIDs.Reverse();
 
+            // return the path list that we found
             return pathIDs;
         }
 
@@ -114,60 +106,53 @@ namespace PGL
 
             // Create a new list and put all the nodes that led upto it
             List<int> pathIDs = new List<int>();
-            // for some reason returing a list of Ids didnt work ... my guess is that cause the reference 
-            // to the classes were broken as we were passing them around - so we got left with empty nodes
-            // Too lazy to rewrite the class method 
-            List<Node> path = new List<Node>();
 
             // Reset all the nodes so that if there were any active nodes
             graph.ResetHasBeenExplored();
 
-            // Execute the BFS algorithm
-            // Create a FIFO queue to take all the elements
-            Stack<Node> SearchQueue = new Stack<Node>();
+            // Execute the DFS algorithm
+            // Create a LIFO stack to take all the elements
+            Stack<int> SearchQueue = new Stack<int>();
             // Queue the first point
-            SearchQueue.Push(start_n);
+            SearchQueue.Push(start_n.id);
 
             // while the stack is not empty
             while (SearchQueue.Count > 0) {
                 // pop the first thing
-                Node SearchCenter = SearchQueue.Pop();
-
-                // check if the things is the end point
-                if (SearchCenter == end_n) {
-                    // if yes then break
-                    break;
-                }
+                int SearchCenterID = SearchQueue.Pop();
 
                 // if not visited
-                if (SearchCenter.hasBeenExplored == false) {
+                if (graph.nodes[SearchCenterID].hasBeenExplored == false) {
+
+                    // set that this has been explored
+                    graph.nodes[SearchCenterID].hasBeenExplored = true;
+
                     // push all its neighbours 
-                    foreach (int ConnectedID in SearchCenter.connected_nodes){
+                    foreach (int ConnectedID in graph.nodes[SearchCenterID].connected_nodes){
                         // set where it was explored from
-                        graph.nodes[ConnectedID].exploredFrom = SearchCenter;
+                        graph.nodes[ConnectedID].exploredFrom = graph.nodes[SearchCenterID];
                         // Push the neighbour
-                        SearchQueue.Push(graph.nodes[ConnectedID]);
+                        SearchQueue.Push(ConnectedID);
                     }
+                }
+
+                // check if the things is the end point
+                if (SearchCenterID == end_n.id)
+                {
+                    // if yes then break
+                    break;
                 }
             }
 
 
-            // Lastly bactrace all the paths that we found
-            // back trace the path
-            path.Add(end_n);
+            pathIDs.Add(end_n.id);
 
-            // Node previous = path[path.Count - 1];
-
-            // && path[path.Count - 1] != null
-            // (previous.id != start_n.id) && 
-            // the argument is that the first node cannot be explored from anything - hence is the start node
-            while (path[path.Count - 1].exploredFrom != null)
+            // so long as the first node isnt queued keep going
+            while (pathIDs[pathIDs.Count - 1] != start_n.id)
             {
                 // Get the last item and append that guy's parent to the path node
-                Node node = path[path.Count - 1];
-                path.Add(node.exploredFrom);
-                pathIDs.Add(node.id);
-                // previous = node;
+                Node node = graph.nodes[pathIDs[pathIDs.Count - 1]];
+                pathIDs.Add(node.exploredFrom.id);
             }
 
             // Add the start node back in the list
