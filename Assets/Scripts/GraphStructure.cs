@@ -108,6 +108,77 @@ namespace PGL
 
             return pathIDs;
         }
+
+
+        public List<int> DFS(GraphStructure graph, Node start_n, Node end_n) {
+
+            // Create a new list and put all the nodes that led upto it
+            List<int> pathIDs = new List<int>();
+            // for some reason returing a list of Ids didnt work ... my guess is that cause the reference 
+            // to the classes were broken as we were passing them around - so we got left with empty nodes
+            // Too lazy to rewrite the class method 
+            List<Node> path = new List<Node>();
+
+            // Reset all the nodes so that if there were any active nodes
+            graph.ResetHasBeenExplored();
+
+            // Execute the BFS algorithm
+            // Create a FIFO queue to take all the elements
+            Stack<Node> SearchQueue = new Stack<Node>();
+            // Queue the first point
+            SearchQueue.Push(start_n);
+
+            // while the stack is not empty
+            while (SearchQueue.Count > 0) {
+                // pop the first thing
+                Node SearchCenter = SearchQueue.Pop();
+
+                // check if the things is the end point
+                if (SearchCenter == end_n) {
+                    // if yes then break
+                    break;
+                }
+
+                // if not visited
+                if (SearchCenter.hasBeenExplored == false) {
+                    // push all its neighbours 
+                    foreach (int ConnectedID in SearchCenter.connected_nodes){
+                        // set where it was explored from
+                        graph.nodes[ConnectedID].exploredFrom = SearchCenter;
+                        // Push the neighbour
+                        SearchQueue.Push(graph.nodes[ConnectedID]);
+                    }
+                }
+            }
+
+
+            // Lastly bactrace all the paths that we found
+            // back trace the path
+            path.Add(end_n);
+
+            // Node previous = path[path.Count - 1];
+
+            // && path[path.Count - 1] != null
+            // (previous.id != start_n.id) && 
+            // the argument is that the first node cannot be explored from anything - hence is the start node
+            while (path[path.Count - 1].exploredFrom != null)
+            {
+                // Get the last item and append that guy's parent to the path node
+                Node node = path[path.Count - 1];
+                path.Add(node.exploredFrom);
+                pathIDs.Add(node.id);
+                // previous = node;
+            }
+
+            // Add the start node back in the list
+            pathIDs.Add(start_n.id);
+
+            // reverse the path list
+            pathIDs.Reverse();
+
+            // return the path list that we found
+            return pathIDs;
+        }
     }
 
     public class Node
