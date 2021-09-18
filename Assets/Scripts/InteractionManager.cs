@@ -43,6 +43,9 @@ public class InteractionManager : MonoBehaviour
     // The camera Object reference
     public GameObject cameraPointer;
 
+    // Homenode
+    public TextMeshProUGUI HomeText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -53,6 +56,22 @@ public class InteractionManager : MonoBehaviour
         // Create a reference to the suggestion list
         suggestionList_1 = SuggestionOBJ_1.GetComponent<TextMeshProUGUI>();
         suggestionList_2 = SuggestionOBJ_2.GetComponent<TextMeshProUGUI>();
+
+        // Rebase to a random node at start
+        int index = random.Next(graphStructure.nodes.Count);
+        Node selectedNode = graphStructure.nodes.ElementAt(index).Value;
+        int idnumber = selectedNode.id;
+
+        // People get confused when they see an edge node
+        while (selectedNode.connected_nodes.Count() < 5) {
+            index = random.Next(graphStructure.nodes.Count);
+            selectedNode = graphStructure.nodes.ElementAt(index).Value;
+            idnumber = selectedNode.id;
+        }
+
+        HomeText.text = selectedNode.name;
+
+        DrawNeighbours(idnumber, new Vector3(0f, 0f, 0f), graphStructure);
     }
 
     // Update is called once per frame
@@ -67,19 +86,56 @@ public class InteractionManager : MonoBehaviour
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit, 100.0f)){
+            if (Physics.Raycast(ray, out hit, 1000.0f)){
                 if (pathMode)
                 {
                     RebaseCameraToTransform(hit.transform);
+                    HomeText.text = hit.transform.GetComponent<Node_object>().Name;
                 }
                 else {
                     int ID = hit.transform.GetComponent<Node_object>().id;
                     graphStructure.ResetAll();
+                    RebaseText.GetComponent<TMP_InputField>().text = hit.transform.GetComponent<Node_object>().Name;
+                    HomeText.text = hit.transform.GetComponent<Node_object>().Name;
                     DrawNeighbours(ID, new Vector3(0f, 0f, 0f), graphStructure);
                 }
             }
         }
     }
+
+    public void Randomize() {
+        // Create a degree 5 select node
+        int index = random.Next(graphStructure.nodes.Count);
+        Node selectedNode = graphStructure.nodes.ElementAt(index).Value;
+        int idnumber = selectedNode.id;
+
+        while (selectedNode.connected_nodes.Count() < 5)
+        {
+            index = random.Next(graphStructure.nodes.Count);
+            selectedNode = graphStructure.nodes.ElementAt(index).Value;
+            idnumber = selectedNode.id;
+        }
+
+        // Create a degree 5 seach node
+        int index_end = random.Next(graphStructure.nodes.Count);
+        Node selectedNode_end = graphStructure.nodes.ElementAt(index_end).Value;
+        int idnumber_end = selectedNode_end.id;
+
+        while (selectedNode_end.connected_nodes.Count() < 5 && idnumber == idnumber_end)
+        {
+            index_end = random.Next(graphStructure.nodes.Count);
+            selectedNode_end = graphStructure.nodes.ElementAt(index_end).Value;
+            idnumber_end = selectedNode_end.id;
+        }
+
+        // set all the text
+        RebaseText.GetComponent<TMP_InputField>().text = graphStructure.nodes[idnumber].name;
+        SearchText.GetComponent<TMP_InputField>().text = graphStructure.nodes[idnumber_end].name;
+
+        // Find a random path
+        FindPath();
+    }
+
 
     // This guys is the actuall method linked to the UI button
     public void Search(){
@@ -126,6 +182,9 @@ public class InteractionManager : MonoBehaviour
 
         string suggestion = sortedDict.Keys.Aggregate((i, j) => i + System.Environment.NewLine + j);
         suggestionList_1.text = suggestion;
+
+        // Change the home text
+        HomeText.text = graphStructure.nodes[RebaseID].name;
 
         // For that node
         // Draw out the context
@@ -255,6 +314,8 @@ public class InteractionManager : MonoBehaviour
             Node_object node_obj = center.GetComponent<Node_object>();
             node_obj.id = IDNUM;
             node_obj.has_been_drawn = true;
+            node_obj.Name = text;
+            
             this_node.positionPoint = new Point(0f, 0f, 0f);
 
             // Set all the text objects values
@@ -294,7 +355,7 @@ public class InteractionManager : MonoBehaviour
                 nodeOBJ_ref.id = nodeOBJ_IDNUM;
                 nodeOBJ_ref.has_been_drawn = true;
                 nodeOBJ_ref.parentDrawingNode = graph.nodes[IDNUM];
-
+                nodeOBJ_ref.Name = nodeOBJ_text;
                 // this sets all the text values
                 TextMeshPro nodeOBJ_ref_TPM = nodeOBJ.GetComponentInChildren<TextMeshPro>();
                 nodeOBJ_ref_TPM.SetText(nodeOBJ_text);
@@ -321,7 +382,7 @@ public class InteractionManager : MonoBehaviour
                         nodeOBJ_d2_ref.id = degree_2_node.id;
                         nodeOBJ_d2_ref.has_been_drawn = true;
                         nodeOBJ_d2_ref.parentDrawingNode = graph.nodes[nodeOBJ_IDNUM];
-
+                        nodeOBJ_d2_ref.Name = nodeOBJ_d2_text;
                         // Set the final text values
                         TextMeshPro nodeOBJ_d2_ref_TPM = nodeOBJ_d2.GetComponentInChildren<TextMeshPro>();
                         nodeOBJ_d2_ref_TPM.SetText(nodeOBJ_d2_text);
@@ -352,16 +413,16 @@ public class InteractionManager : MonoBehaviour
             if (graphStructure.nodes[node_ref.id].fallsOnPath){
                 foreach (Transform physicalObject in node){
                     if (physicalObject.tag == "PhysicalRenderer"){
-                        MeshRenderer renderer = physicalObject.GetComponent<MeshRenderer>();
-                        renderer.material.color = pathColour;
+                        Material renderer = physicalObject.GetComponent<MeshRenderer>().material;
+                        renderer.SetColor("_EmissionColor", pathColour);
                     }
                 }
             }
             else {
                 foreach (Transform physicalObject in node){
                     if (physicalObject.tag == "PhysicalRenderer"){
-                        MeshRenderer renderer = physicalObject.GetComponent<MeshRenderer>();
-                        renderer.material.color = defaultColour;
+                        Material renderer = physicalObject.GetComponent<MeshRenderer>().material;
+                        renderer.SetColor("_EmissionColor", defaultColour);
                     }
                 }
             }
@@ -432,10 +493,18 @@ public class InteractionManager : MonoBehaviour
                 DrawNeighbours(Path[i], graphStructure.nodes[Path[i]].positionPoint.ToVector(), graphStructure);
                 lineRenderer.SetPosition(i, graphStructure.nodes[Path[i]].positionPoint.ToVector());
             }
+
+            // Change the home text
+            HomeText.text = graphStructure.nodes[StartID].name;
         }
         catch {
             suggestionList_1.text = "PATH TOO LONG";
             suggestionList_2.text = "PATH TOO LONG";
+            DrawNeighbours(StartID, new Vector3(0f, 0f, 0f), graphStructure);
+            pathMode = false;
+
+            // Change the home text
+            HomeText.text = graphStructure.nodes[StartID].name;
         }
     }
 

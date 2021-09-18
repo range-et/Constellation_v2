@@ -35,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.18207672}
+  m_AnchoredPosition: {x: 0, y: -1}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &4311122079206976075
@@ -108,8 +108,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4283580462
-  m_fontColor: {r: 0.18039216, g: 0.2509804, b: 0.32156864, a: 1}
+    rgba: 4290032820
+  m_fontColor: {r: 0.7075472, g: 0.7075472, b: 0.7075472, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -280,7 +280,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.5, y: 1.5, z: 1.5}
+  m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4311122080107872999
 MonoBehaviour:
@@ -297,6 +297,9 @@ MonoBehaviour:
   id: 0
   has_been_drawn: 0
   edgeHasBeenDrawn: 0
+  Name: 
+  HoverColour: {r: 0.27049786, g: 0.590619, b: 0.79129815, a: 1}
+  DefaultColour: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 1}
 --- !u!120 &1503204222309780721
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -348,7 +351,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.052631557
+        value: 0.023395717
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -422,7 +425,7 @@ Transform:
   m_GameObject: {fileID: 7153739163654423116}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4311122080107873003}
   m_RootOrder: 1
@@ -454,7 +457,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0aa0bc2c1ddb56242977554d7f02eb26, type: 2}
+  - {fileID: 2100000, guid: 98968d518393ed6418c5542fb544f570, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

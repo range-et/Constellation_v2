@@ -8,6 +8,7 @@ public class Cameramovement : MonoBehaviour
     [SerializeField] private Camera cam;
     [SerializeField] private Transform target;
     [SerializeField] private float distanceToTarget = 10;
+    public float scale = 1f;
 
     private Vector3 previousPosition;
 
@@ -17,8 +18,9 @@ public class Cameramovement : MonoBehaviour
         {
             previousPosition = cam.ScreenToViewportPoint(Input.mousePosition);
         }
-        else if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0))
         {
+            distanceToTarget += Input.mouseScrollDelta.y * scale * -1;
             Vector3 newPosition = cam.ScreenToViewportPoint(Input.mousePosition);
             Vector3 direction = previousPosition - newPosition;
 
@@ -34,5 +36,6 @@ public class Cameramovement : MonoBehaviour
 
             previousPosition = newPosition;
         }
+        
     }
 }
